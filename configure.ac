@@ -354,6 +354,7 @@ AG_GST_CHECK_PLUGIN(speed)
 AG_GST_CHECK_PLUGIN(streamanalysis)
 AG_GST_CHECK_PLUGIN(subenc)
 AG_GST_CHECK_PLUGIN(stereo)
+AG_GST_CHECK_PLUGIN(sync)
 AG_GST_CHECK_PLUGIN(tta)
 AG_GST_CHECK_PLUGIN(videofilters)
 AG_GST_CHECK_PLUGIN(videomaxrate)
@@ -1797,6 +1798,7 @@ gst/speed/Makefile
 gst/subenc/Makefile
 gst/stereo/Makefile
 gst/streamanalysis/Makefile
+gst/sync/Makefile
 gst/tta/Makefile
 gst/videofilters/Makefile
 gst/videomaxrate/Makefile
