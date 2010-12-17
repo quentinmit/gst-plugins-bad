@@ -8,7 +8,8 @@ libgstsync_la_SOURCES = gstsync.c \
 	gstaudiosync.h
 
 libgstsync_la_CFLAGS = $(GST_PLUGINS_BASE_CFLAGS) $(GST_CFLAGS)
-libgstsync_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) $(GST_BASE_LIBS) \
+libgstsync_la_LIBADD = $(GST_PLUGINS_BASE_LIBS) -lgstvideo-0.10 \
+		       $(GST_BASE_LIBS) \
 		       $(GST_LIBS)
 libgstsync_la_LDFLAGS = $(GST_PLUGIN_LDFLAGS)
 libgstsync_la_LIBTOOLFLAGS = --tag=disable-static

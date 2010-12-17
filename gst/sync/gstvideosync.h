@@ -1,5 +1,5 @@
 /* GStreamer
- * Copyright (C) 2010 REAL_NAME <EMAIL_ADDRESS>
+ * Copyright (C) 2010 David Schleef <ds@schleef.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -21,7 +21,8 @@
 #define _GST_VIDEOSYNC_H_
 
 #include <gst/gst.h>
-#include <gst/gst.h>
+#include <gst/base/gstpushsrc.h>
+#include <gst/video/video.h>
 
 G_BEGIN_DECLS
 
@@ -36,15 +37,39 @@ typedef struct _GstVideosyncClass GstVideosyncClass;
 
 struct _GstVideosync
 {
-  GstElement base_videosync;
+  GstPushSrc base_videosync;
 
   GstPad *sinkpad;
   GstPad *srcpad;
+
+  GMutex *lock;
+  GCond *cond;
+  GstBuffer *current_buffer;
+  GstSegment segment;
+
+  gboolean reset;
+  gint64 ts_offset;
+
+  /* properties */
+  gint64 timestamp_offset;
+
+  /* state */
+  int width;
+  int height;
+  GstVideoFormat format;
+  int size;
+  int fps_n, fps_d;
+  int par_n, par_d;
+  gboolean interlaced;
+
+  int n_frames;
+
+  GstClockTime current_time;
 };
 
 struct _GstVideosyncClass
 {
-  GstElementClass base_videosync_class;
+  GstPushSrcClass base_videosync_class;
 };
 
 GType gst_videosync_get_type (void);

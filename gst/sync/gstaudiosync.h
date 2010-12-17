@@ -1,5 +1,5 @@
 /* GStreamer
- * Copyright (C) 2010 REAL_NAME <EMAIL_ADDRESS>
+ * Copyright (C) 2010 David Schleef <ds@schleef.org>
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Library General Public
@@ -21,7 +21,8 @@
 #define _GST_AUDIOSYNC_H_
 
 #include <gst/gst.h>
-#include <gst/gst.h>
+#include <gst/base/gstpushsrc.h>
+#include <gst/audio/audio.h>
 
 G_BEGIN_DECLS
 
@@ -36,15 +37,33 @@ typedef struct _GstAudiosyncClass GstAudiosyncClass;
 
 struct _GstAudiosync
 {
-  GstElement base_audiosync;
+  GstPushSrc base_audiosync;
 
   GstPad *sinkpad;
   GstPad *srcpad;
+
+  GMutex *lock;
+  GCond *cond;
+  GstBuffer *current_buffer;
+  GstSegment segment;
+
+  gboolean reset;
+  gint64 ts_offset;
+
+  /* properties */
+  gint64 timestamp_offset;
+
+  /* state */
+  int n_samples;
+  int rate;
+  int channels;
+
+  GstClockTime current_time;
 };
 
 struct _GstAudiosyncClass
 {
-  GstElementClass base_audiosync_class;
+  GstPushSrcClass base_audiosync_class;
 };
 
 GType gst_audiosync_get_type (void);
