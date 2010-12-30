@@ -45,7 +45,8 @@ struct _GstVideosync
   GMutex *lock;
   GCond *cond;
   GstBuffer *current_buffer;
-  GstSegment segment;
+  GstSegment sink_segment;
+  GstSegment src_segment;
 
   gboolean reset;
   gint64 ts_offset;
@@ -65,6 +66,8 @@ struct _GstVideosync
   int n_frames;
 
   GstClockTime current_time;
+  GstClockTime buffer_start;
+  GstClockTime buffer_end;
 };
 
 struct _GstVideosyncClass

@@ -223,6 +223,7 @@ gst_videosync_init (GstVideosync * videosync,
 
   videosync->cond = g_cond_new ();
   videosync->lock = g_mutex_new ();
+  gst_segment_init (&videosync->sink_segment, GST_FORMAT_TIME);
 }
 
 void
@@ -603,17 +604,8 @@ gst_videosync_create (GstPushSrc * src, GstBuffer ** buf)
   buffer = NULL;
   g_mutex_lock (videosync->lock);
   if (videosync->current_buffer) {
-    GstClockTime buffer_start;
-    GstClockTime buffer_end;
-
-    buffer_start = GST_BUFFER_TIMESTAMP (videosync->current_buffer) +
-        videosync->ts_offset;
-    if (GST_BUFFER_DURATION (videosync->current_buffer) != GST_CLOCK_TIME_NONE) {
-      buffer_end =
-          buffer_start + GST_BUFFER_DURATION (videosync->current_buffer);
-    } else {
-      buffer_end = buffer_start;
-    }
+    GstClockTime buffer_start = videosync->buffer_start;
+    GstClockTime buffer_end = videosync->buffer_end;
 
     if (current_time >= buffer_start && current_time <= buffer_end + GST_SECOND) {
       buffer = gst_buffer_ref (videosync->current_buffer);
@@ -805,21 +797,28 @@ gst_videosync_sink_chain (GstPad * pad, GstBuffer * buffer)
 
   videosync = GST_VIDEOSYNC (gst_pad_get_parent (pad));
 
-  GST_DEBUG_OBJECT (videosync, "chain");
+  GST_ERROR_OBJECT (videosync, "chain ts %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buffer)));
 
   if (GST_BUFFER_IS_DISCONT (buffer)) {
     videosync->ts_offset = videosync->current_time -
         GST_BUFFER_TIMESTAMP (buffer);
-    GST_ERROR ("setting ts offset to %" GST_TIME_FORMAT,
-        GST_TIME_ARGS (videosync->ts_offset));
+    GST_ERROR ("setting ts offset to %" GST_TIME_FORMAT " buffer ts %"
+        GST_TIME_FORMAT, GST_TIME_ARGS (videosync->ts_offset),
+        GST_TIME_ARGS (GST_BUFFER_TIMESTAMP (buffer)));
   }
 
-  buffer_start = GST_BUFFER_TIMESTAMP (buffer) + videosync->ts_offset;
+  buffer_start = gst_segment_to_running_time (&videosync->sink_segment,
+      GST_FORMAT_TIME, GST_BUFFER_TIMESTAMP (buffer));
   if (GST_BUFFER_DURATION (buffer) != GST_CLOCK_TIME_NONE) {
-    buffer_end = buffer_start + GST_BUFFER_DURATION (buffer);
+    buffer_end = gst_segment_to_running_time (&videosync->sink_segment,
+        GST_FORMAT_TIME, GST_BUFFER_TIMESTAMP (buffer) +
+        GST_BUFFER_DURATION (buffer));
   } else {
     buffer_end = buffer_start;
   }
+  GST_ERROR ("buffer_start %" GST_TIME_FORMAT " end %" GST_TIME_FORMAT,
+      GST_TIME_ARGS (buffer_start), GST_TIME_ARGS (buffer_end));
 
   g_mutex_lock (videosync->lock);
   while (!videosync->reset && buffer_start > videosync->current_time) {
@@ -836,6 +835,8 @@ gst_videosync_sink_chain (GstPad * pad, GstBuffer * buffer)
     gst_buffer_unref (videosync->current_buffer);
   }
   videosync->current_buffer = buffer;
+  videosync->buffer_start = buffer_start;
+  videosync->buffer_end = buffer_end;
   g_mutex_unlock (videosync->lock);
 
   gst_object_unref (videosync);
@@ -890,10 +891,8 @@ gst_videosync_sink_event (GstPad * pad, GstEvent * event)
           GST_TIME_ARGS (start), GST_TIME_ARGS (stop),
           GST_TIME_ARGS (position));
 
-#if 0
-      gst_segment_set_newsegment_full (&videosync->segment,
+      gst_segment_set_newsegment_full (&videosync->sink_segment,
           update, rate, applied_rate, format, start, stop, position);
-#endif
 
       gst_event_unref (event);
       res = TRUE;
