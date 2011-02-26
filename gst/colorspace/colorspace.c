@@ -557,9 +557,9 @@ getline_v216 (ColorspaceConvert * convert, guint8 * dest, const guint8 * src,
   const guint8 *srcline = FRAME_GET_LINE (src, 0, j);
   for (i = 0; i < convert->width; i++) {
     dest[i * 4 + 0] = 0xff;
-    dest[i * 4 + 1] = GST_READ_UINT16_LE (srcline + i * 4 + 2) >> 8;
-    dest[i * 4 + 2] = GST_READ_UINT16_LE (srcline + (i >> 1) * 8 + 0) >> 8;
-    dest[i * 4 + 3] = GST_READ_UINT16_LE (srcline + (i >> 1) * 8 + 4) >> 8;
+    dest[i * 4 + 1] = GST_READ_UINT16_BE (srcline + i * 4 + 2) >> 8;
+    dest[i * 4 + 2] = GST_READ_UINT16_BE (srcline + (i >> 1) * 8 + 0) >> 8;
+    dest[i * 4 + 3] = GST_READ_UINT16_BE (srcline + (i >> 1) * 8 + 4) >> 8;
   }
 }
 
@@ -570,10 +570,10 @@ putline_v216 (ColorspaceConvert * convert, guint8 * dest, const guint8 * src,
   int i;
   guint8 *destline = FRAME_GET_LINE (dest, 0, j);
   for (i = 0; i < convert->width / 2; i++) {
-    GST_WRITE_UINT16_LE (destline + i * 8 + 0, src[(i * 2 + 0) * 4 + 2] << 8);
-    GST_WRITE_UINT16_LE (destline + i * 8 + 2, src[(i * 2 + 0) * 4 + 1] << 8);
-    GST_WRITE_UINT16_LE (destline + i * 8 + 4, src[(i * 2 + 1) * 4 + 3] << 8);
-    GST_WRITE_UINT16_LE (destline + i * 8 + 8, src[(i * 2 + 0) * 4 + 1] << 8);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 0, src[(i * 2 + 0) * 4 + 2] << 8);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 2, src[(i * 2 + 0) * 4 + 1] << 8);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 4, src[(i * 2 + 1) * 4 + 3] << 8);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 8, src[(i * 2 + 0) * 4 + 1] << 8);
   }
 }
 
@@ -585,9 +585,9 @@ getline16_v216 (ColorspaceConvert * convert, guint16 * dest, const guint8 * src,
   const guint8 *srcline = FRAME_GET_LINE (src, 0, j);
   for (i = 0; i < convert->width; i++) {
     dest[i * 4 + 0] = 0xffff;
-    dest[i * 4 + 1] = GST_READ_UINT16_LE (srcline + i * 4 + 2);
-    dest[i * 4 + 2] = GST_READ_UINT16_LE (srcline + (i >> 1) * 8 + 0);
-    dest[i * 4 + 3] = GST_READ_UINT16_LE (srcline + (i >> 1) * 8 + 4);
+    dest[i * 4 + 1] = GST_READ_UINT16_BE (srcline + i * 4 + 2);
+    dest[i * 4 + 2] = GST_READ_UINT16_BE (srcline + (i >> 1) * 8 + 0);
+    dest[i * 4 + 3] = GST_READ_UINT16_BE (srcline + (i >> 1) * 8 + 4);
   }
 }
 
@@ -598,10 +598,10 @@ putline16_v216 (ColorspaceConvert * convert, guint8 * dest, const guint16 * src,
   int i;
   guint8 *destline = FRAME_GET_LINE (dest, 0, j);
   for (i = 0; i < convert->width / 2; i++) {
-    GST_WRITE_UINT16_LE (destline + i * 8 + 0, src[(i * 2 + 0) * 4 + 2]);
-    GST_WRITE_UINT16_LE (destline + i * 8 + 2, src[(i * 2 + 0) * 4 + 1]);
-    GST_WRITE_UINT16_LE (destline + i * 8 + 4, src[(i * 2 + 1) * 4 + 3]);
-    GST_WRITE_UINT16_LE (destline + i * 8 + 8, src[(i * 2 + 0) * 4 + 1]);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 0, src[(i * 2 + 0) * 4 + 2]);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 2, src[(i * 2 + 0) * 4 + 1]);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 4, src[(i * 2 + 1) * 4 + 3]);
+    GST_WRITE_UINT16_BE (destline + i * 8 + 8, src[(i * 2 + 0) * 4 + 1]);
   }
 }
 
