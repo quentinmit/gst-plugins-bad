@@ -1449,7 +1449,7 @@ gst_base_video_decoder_set_src_caps (GstBaseVideoDecoder * base_video_decoder)
   gst_caps_set_simple (caps, "interlaced",
       G_TYPE_BOOLEAN, state->interlaced, NULL);
 
-  GST_ERROR ("setting caps %" GST_PTR_FORMAT, caps);
+  GST_DEBUG ("setting caps %" GST_PTR_FORMAT, caps);
 
   gst_pad_set_caps (GST_BASE_VIDEO_CODEC_SRC_PAD (base_video_decoder), caps);
 
